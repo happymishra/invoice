@@ -1,0 +1,11 @@
+# Ignore python cached files
+*.pyc
+
+# Ignore pcharm files
+.idea
+
+# Ignore .env folder created for docker environment
+.env
+
+# ignore swap files
+*~
