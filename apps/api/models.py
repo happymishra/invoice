@@ -18,7 +18,7 @@ class BuyerSeller(models.Model):
     id = models.AutoField(primary_key=True)
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
-    address_id = models.ForeignKey(Address, on_delete=models.CASCADE)
+    address = models.ForeignKey(Address, on_delete=models.CASCADE)
 
     class Meta:
         db_table = "buyerseller"
@@ -72,10 +72,13 @@ class UploadInvoice(models.Model):
         db_table = "uploadinvoice"
 
 
-class Item(models.Model):
+class InvoiceItem(models.Model):
     id = models.AutoField(primary_key=True)
-    invoice_id = models.ForeignKey(InvoiceDetail, on_delete=models.SET_NULL, null=True)
-    item = models.CharField(max_length=50)
+    invoice = models.ForeignKey(InvoiceDetail,
+                                on_delete=models.SET_NULL,
+                                null=True,
+                                related_name='invoice_item')
+    name = models.CharField(max_length=50)
     quantity = models.IntegerField()
     price = models.FloatField()
 
