@@ -1,0 +1,28 @@
+<!--https://stackoverflow.com/questions/44708023/how-to-upload-a-file-using-ajax-on-post-->
+
+<!DOCTYPE html>
+    {% load static %}
+    <head>
+        <meta charset="utf-8">
+        <title>Request a ride</title>
+    </head>
+    <body>
+        <div class="input-body">
+            <div class="invoice-upload-form">
+                <input type="file" id="invoice-file">
+                <input type="button" id="upload" value="Upload"> <br>
+            </div>
+
+<!--            <form method="post" action="/path/" enctype="multipart/form-data">-->
+<!--            <input type="file" name="myfile" />-->
+<!--            <input type="submit" name="submit" value="Upload" />-->
+<!--            </form>-->
+        </div>
+        <div id="logging">
+
+        </div>
+    </body>
+
+    <script src="{% static 'js/jquery-3.4.1.min.js' %}"></script>
+    <script src="{% static 'js/upload.js' %}"></script>
+</html>
