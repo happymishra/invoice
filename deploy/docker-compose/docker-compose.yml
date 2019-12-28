@@ -1,0 +1,45 @@
+version: '3'
+
+services:
+  web:
+    image: invoice-management
+    container_name: invoice-management
+    hostname: invoice-management
+    build:
+      context: ../../
+      dockerfile: deploy/Dockerfile
+    command: >
+      bash -c "set -e
+      && python manage.py collectstatic --no-input --clear
+      && gunicorn invoice.wsgi:application --bind 0.0.0.0:8000 --workers 4 --timeout 300 --access-logfile /var/log/invoice/gunicorn.log --error-logfile /var/log/invoice/gunicorn_error.log --log-level info
+      && /bin/bash"
+    restart: always
+    expose:
+      - 8000
+    volumes:
+      - /var/log/invoice:/var/log/invoice
+      - /home/jenkins/invoice/staticfiles:/home/jenkins/invoice/staticfiles
+      - /home/jenkins/invoice/media:/home/jenkins/invoice/media
+    tty: true
+
+  nginx:
+    image: nginx
+    container_name: nginx
+    hostname: nginx
+    build: ../nginx
+    restart: always
+    ports:
+    - "1337:80"
+    volumes:
+      - /var/log/invoice:/var/log/invoice
+      - /home/jenkins/invoice/staticfiles:/home/jenkins/invoice/staticfiles
+      - /home/jenkins/invoice/media:/home/jenkins/invoice/media
+    depends_on:
+      - web
+
+
+
+
+
+
+
