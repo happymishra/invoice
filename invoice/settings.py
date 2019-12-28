@@ -36,7 +36,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'debug_toolbar',
     'apps.api',
 ]
 
@@ -128,9 +127,3 @@ STATICFILES_DIRS = (
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
-
-INTERNAL_IPS = [
-    # ...
-    '127.0.0.1',
-    # ...
-]

@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+{% load static %}
+<head>
+    <meta charset="utf-8">
+    <title>Request a ride</title>
+</head>
+<body>
+    <div class="input-body">
+        <div class="invoice-upload-form">
+            <input type="file" id="invoice-file"><br><br>
+            <input type="button" id="upload" value="Upload"> <br>
+        </div>
+    </div>
+</body>
+<script src="{% static 'js/library/jquery-3.4.1.min.js' %}"></script>
+<script src="{% static 'js/invoicemanagement/upload.js' %}"></script>
+</html>

@@ -3,6 +3,7 @@ from datetime import datetime
 from uuid import uuid4
 
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 
 
 class Address(models.Model):
@@ -60,9 +61,19 @@ class InvoiceDetail(models.Model):
 
 
 class UploadInvoice(models.Model):
+    NEW = 0
+    IN_PROGRESS = 1
+    DONE = 2
+
+    StatusChoices = (
+        (NEW, _("New")),
+        (IN_PROGRESS, _("InProgress")),
+        (DONE, _("Done")),
+    )
+
     id = models.AutoField(primary_key=True)
-    user_id = models.IntegerField(default=10)
-    status = models.IntegerField(default=1)
+    user_id = models.IntegerField(default=11)
+    status = models.IntegerField(choices=StatusChoices, default=NEW)
     creation_date = models.DateTimeField(default=datetime.now)
     file_path = models.FileField(upload_to=set_file_path)
     invoice_detail = models.ForeignKey(InvoiceDetail, on_delete=models.CASCADE,
