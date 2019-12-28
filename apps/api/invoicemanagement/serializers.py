@@ -72,11 +72,6 @@ class InvoiceDetailSerializer(serializers.ModelSerializer):
         model = InvoiceDetail
         fields = ['id', 'seller', 'buyer', 'amount', 'invoice_number', 'invoice_item']
 
-    def to_representation(self, instance):
-        return {
-            'invoice_id': instance.id
-        }
-
     def create(self, validated_data):
         seller_obj = BuyerSellerSerializer.create(validated_data.pop('seller'))
         buyer_obj = BuyerSellerSerializer.create(validated_data.pop('buyer'))

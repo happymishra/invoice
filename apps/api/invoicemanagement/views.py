@@ -9,10 +9,7 @@ from apps.api.invoicemanagement.serializers import (InvoiceDetailSerializer)
 
 
 class InvoiceDetailView(APIView):
-    def get(self, request):
-        invoice_id = request.GET.get('invoice_id')
-        invoice_id = int(invoice_id)
-
+    def get(self, request, invoice_id):
         try:
             query_set = InvoiceDetail.objects \
                 .select_related('seller',
