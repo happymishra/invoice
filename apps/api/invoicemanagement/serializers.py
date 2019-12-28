@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from rest_framework.parsers import FileUploadParser, JSONParser
+from rest_framework.parsers import FileUploadParser
 
 from apps.api.invoicemanagement.models import (UploadInvoice,
                                                Address,
@@ -63,13 +63,19 @@ class InvoiceItemSerializer(serializers.ModelSerializer):
 
 
 class InvoiceDetailSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(required=False)
     buyer = BuyerSellerSerializer()
     seller = BuyerSellerSerializer()
     invoice_item = InvoiceItemSerializer(many=True)
 
     class Meta:
         model = InvoiceDetail
-        fields = ['seller', 'buyer', 'amount', 'invoice_number', 'invoice_item']
+        fields = ['id', 'seller', 'buyer', 'amount', 'invoice_number', 'invoice_item']
+
+    def to_representation(self, instance):
+        return {
+            'invoice_id': instance.id
+        }
 
     def create(self, validated_data):
         seller_obj = BuyerSellerSerializer.create(validated_data.pop('seller'))
@@ -84,8 +90,6 @@ class InvoiceDetailSerializer(serializers.ModelSerializer):
                          for item in items]
         InvoiceItem.objects.bulk_create(invoice_items)
         return invoice_detail_obj
-
-        print("Hello")
 
     def update(self, instance, validated_data):
         for key, value in validated_data.items():
