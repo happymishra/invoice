@@ -39,6 +39,13 @@ class AddressSerializer(serializers.ModelSerializer):
         model = Address
         fields = ['street', 'pin_code']
 
+    @staticmethod
+    def update(instance, data):
+        address_obj = instance.address
+        for key, value in data.items():
+            setattr(address_obj, key, value)
+        address_obj.save()
+
 
 class BuyerSellerSerializer(serializers.ModelSerializer):
     address = AddressSerializer()
@@ -53,6 +60,18 @@ class BuyerSellerSerializer(serializers.ModelSerializer):
         buyer_seller_obj = BuyerSeller.objects.create(address=add_obj, **validated_data)
         return buyer_seller_obj
 
+    @staticmethod
+    def update(instance, buyer_seller_data, key):
+        buyer_seller_obj = getattr(instance, key)
+
+        for key, value in buyer_seller_data.items():
+            if key == 'address':
+                AddressSerializer.update(buyer_seller_obj, buyer_seller_data.get(key))
+            else:
+                setattr(buyer_seller_obj, key, value)
+
+        buyer_seller_obj.save()
+
 
 class InvoiceItemSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(required=False)
@@ -60,6 +79,34 @@ class InvoiceItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = InvoiceItem
         fields = ['id', 'name', 'quantity', 'price']
+
+    @staticmethod
+    def create(items, invoice_obj):
+        invoice_items = [InvoiceItem(invoice=invoice_obj, **item)
+                         for item in items]
+        InvoiceItem.objects.bulk_create(invoice_items)
+
+    @staticmethod
+    def update(instance, validated_data):
+        db_items = InvoiceItem.objects.filter(invoice=instance.pk)
+        db_item_dict = {i.id: i for i in db_items}
+        new_items = list()
+
+        for each_item in validated_data.get('invoice_item'):
+            item_id = each_item.get('id', None)
+            db_item = db_item_dict.get(item_id)
+
+            if item_id and db_item:
+                for _key, _value in each_item.items():
+                    setattr(db_item, _key, _value)
+
+                db_item.save()
+            else:
+                invoice_obj = InvoiceItem(invoice=instance, **each_item)
+                new_items.append(invoice_obj)
+
+        if new_items:
+            InvoiceItem.objects.bulk_create(new_items)
 
 
 class InvoiceDetailSerializer(serializers.ModelSerializer):
@@ -81,43 +128,16 @@ class InvoiceDetailSerializer(serializers.ModelSerializer):
                                                           buyer=buyer_obj,
                                                           **validated_data)
 
-        invoice_items = [InvoiceItem(invoice=invoice_detail_obj, **item)
-                         for item in items]
-        InvoiceItem.objects.bulk_create(invoice_items)
+        InvoiceItemSerializer.create(items, invoice_detail_obj)
         return invoice_detail_obj
 
     def update(self, instance, validated_data):
         for key, value in validated_data.items():
             if key == 'invoice_item':
-                db_item = InvoiceItem.objects.filter(invoice=instance.pk)
-                db_item_dict = {i.id: i for i in db_item}
-                item = validated_data.get('invoice_item')
-
-                for each_item in item:
-                    item_id = each_item.get('id', None)
-                    db_item = db_item_dict.get(item_id)
-                    if item_id and db_item:
-                        for _key, _value in each_item.items():
-                            setattr(db_item, _key, _value)
-
-                        db_item.save()
-                    else:
-                        InvoiceItem.objects.create(invoice=instance, **each_item)
+                InvoiceItemSerializer.update(instance, validated_data)
             elif key in ('buyer', 'seller'):
-                buyer_seller_obj = getattr(instance, key)
-
-                for _key, _value in value.items():
-                    if _key == 'address':
-                        addr_obj = buyer_seller_obj.address
-                        for a, b in _value.items():
-                            setattr(addr_obj, a, b)
-                        addr_obj.save()
-                    else:
-                        setattr(buyer_seller_obj, _key, _value)
-                buyer_seller_obj.save()
+                BuyerSellerSerializer.update(instance, validated_data.get(key), key)
             else:
                 setattr(instance, key, value)
-
         instance.save()
-
         return instance
