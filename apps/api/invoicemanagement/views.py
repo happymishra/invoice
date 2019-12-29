@@ -14,7 +14,7 @@ from apps.api.utils.exception_handler import (BadRequestException,
 class InvoiceDetailView(APIView):
     def get(self, request, invoice_id):
         try:
-            query_set = InvoiceDetail.invoice_detail_objects.filter(id=invoice_id)
+            query_set = InvoiceDetail.invoice_detail_objects.get(id=invoice_id)
             serializer = InvoiceDetailSerializer(query_set)
             return Response(serializer.data, status=HTTP_200_OK)
         except (InvoiceDetail.DoesNotExist, InvoiceDetail.MultipleObjectsReturned) as ex:

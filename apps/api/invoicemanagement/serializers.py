@@ -10,14 +10,16 @@ from apps.api.invoicemanagement.models import (UploadInvoice,
 
 class InvoiceUploadSerializers(serializers.ModelSerializer):
     parser_classes = (FileUploadParser,)
+    id = serializers.IntegerField(required=False)
 
     class Meta:
         model = UploadInvoice
-        fields = ['user_id', 'file_path']
+        fields = ['id', 'user_id', 'file_path']
 
 
 class InvoiceUploadStatusSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(required=False)
+    invoice_detail_id = serializers.IntegerField(required=False)
 
     class Meta:
         model = UploadInvoice

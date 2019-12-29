@@ -17,7 +17,7 @@ class FileView(APIView):
         try:
             upload_invoice_obj = UploadInvoice.objects.get(id=upload_id)
             serializer = InvoiceUploadStatusSerializer(upload_invoice_obj)
-            Response(serializer.data, status=HTTP_200_OK)
+            return Response(serializer.data, status=HTTP_200_OK)
         except (UploadInvoice.DoesNotExist, UploadInvoice.MultipleObjectsReturned):
             raise BadRequestException("File upload id does not exists. Please enter a valid Id")
         except Exception as ex:
@@ -30,9 +30,9 @@ class FileView(APIView):
                 serializer.save()
                 return Response(serializer.data, status=HTTP_201_CREATED)
         except ValidationError:
-            return ValidationException(serializer.errors)
+            raise ValidationException(serializer.errors)
         except Exception as ex:
-            return ServerException()
+            raise ServerException()
 
     def patch(self, request, upload_id):
         try:
