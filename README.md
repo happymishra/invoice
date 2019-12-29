@@ -18,6 +18,11 @@ Celery workers will pick up the task from this queue and will process the invoic
  ```shell script
  sudo docker-compose -f deploy/docker-compose/docker-compose.yml up -d --build
  ```
+Now, the application can be accessed at [http://localhost:1337/](http://localhost:1337/). 
+Using this page we can upload the invoice.  
+
+![enter image description here](https://github.com/happymishra/invoice/blob/master/docs/uploadpage.png)
+
 
 ### API endpoints
 ------------------------------------------------------------------------------------------------------------
@@ -37,8 +42,9 @@ It also creates an entry in the *uploadinvoice* table.
 
 ---------------------------------------------------------------------------------------------------------------
 
-**URL**: /api/invoice/upload/{upload_id}  
+**URL**: */api/invoice/upload/{upload_id}*    
 **Method**: *GET*  
+**Example**: */api/invoice/upload/1*  
 **Response**:  
 
 *Condition 1: Invoice processing completed*
@@ -64,11 +70,16 @@ This API provides the status of the invoice processing. If the invoice has been 
 
 -----------------------------------------------------------------------------------------------------------------------------
 **URL**: */api/invoice/upload/{upload_id}*  
+**Example**: */api/invoice/upload/1*  
 **Method**: *PATCH*  
 **Request body**:  
+Status: 0 - New  
+Status: 1 - InProgress  
+Status: 2 - Done  
+
 ```json
 {
-  "status": 1 
+  "status": 2
 }
 ```
 **Response**:
@@ -77,6 +88,7 @@ This API provides the status of the invoice processing. If the invoice has been 
    "message":"Updated status successfully"
 }
 ```
+This API has to be used by the staff user only. It updates the invoice processing status
 
 ------------------------------------------------------------------------------------------------------------------------------
 
@@ -120,7 +132,8 @@ This API provides the status of the invoice processing. If the invoice has been 
    ]
 }
 ```
-This API provides the digitized invoice details
+Once the invoice has been processed and its data has been digitized,
+this API provides the digitized invoice details
 
 --------------------------------------------------------------------------------------------------------------------
 

@@ -3,10 +3,6 @@ from datetime import datetime
 from uuid import uuid4
 
 
-class BadRequestError(Exception):
-    pass
-
-
 def get_file_path(instance, filename):
     new_path = f"{instance.user_id}/{datetime.strftime(instance.creation_date, '%Y-%m-%d')}"
     ext = filename.split('.')[-1]

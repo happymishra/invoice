@@ -12,6 +12,7 @@ $(document).ready(function(){
             processData: false,
             cache: false,
             success: function(data) {
+                alert("File uploaded successfully")
                 console.log("File uploaded successfully")
             },
             error: function() {

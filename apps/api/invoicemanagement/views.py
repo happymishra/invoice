@@ -1,3 +1,5 @@
+import traceback
+
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.status import (HTTP_200_OK,
@@ -9,6 +11,7 @@ from apps.api.invoicemanagement.serializers import (InvoiceDetailSerializer)
 from apps.api.utils.exception_handler import (BadRequestException,
                                               ServerException,
                                               ValidationException)
+from . import logger
 
 
 class InvoiceDetailView(APIView):
@@ -20,6 +23,7 @@ class InvoiceDetailView(APIView):
         except (InvoiceDetail.DoesNotExist, InvoiceDetail.MultipleObjectsReturned) as ex:
             raise BadRequestException("Invalid invoice id. Please enter a valid invoice id")
         except Exception as ex:
+            logger.error(traceback.format_exc())
             raise ServerException()
 
     def post(self, request):
@@ -33,6 +37,7 @@ class InvoiceDetailView(APIView):
         except ValidationError:
             raise ValidationException(serializer.errors)
         except Exception as ex:
+            logger.error(traceback.format_exc())
             raise ServerException()
 
     def patch(self, request, invoice_id):
@@ -49,4 +54,5 @@ class InvoiceDetailView(APIView):
         except ValidationError:
             raise ValidationException(serializer.errors)
         except Exception as ex:
+            logger.error(traceback.format_exc())
             raise ServerException()

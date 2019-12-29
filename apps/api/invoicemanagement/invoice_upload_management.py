@@ -1,3 +1,5 @@
+import traceback
+
 from django.http import JsonResponse
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
@@ -10,6 +12,7 @@ from apps.api.invoicemanagement.serializers import (InvoiceUploadSerializers,
 from apps.api.utils.exception_handler import (BadRequestException,
                                               ValidationException,
                                               ServerException)
+from . import logger
 
 
 class FileView(APIView):
@@ -21,6 +24,7 @@ class FileView(APIView):
         except (UploadInvoice.DoesNotExist, UploadInvoice.MultipleObjectsReturned):
             raise BadRequestException("File upload id does not exists. Please enter a valid Id")
         except Exception as ex:
+            logger.error(traceback.format_exc())
             raise ServerException()
 
     def post(self, request):
@@ -32,15 +36,22 @@ class FileView(APIView):
         except ValidationError:
             raise ValidationException(serializer.errors)
         except Exception as ex:
+            logger.error(traceback.format_exc())
             raise ServerException()
 
     def patch(self, request, upload_id):
         try:
-
+            request_data = request.data
+            status = request_data.get('status')
             upload_invoice_obj = UploadInvoice.objects.get(id=upload_id)
 
+            if status and status == UploadInvoice.DONE:
+                if upload_invoice_obj.invoice_detail_id is None:
+                    raise BadRequestException("No invoice id exists. "
+                                              "It seems invoice still has not been digitized")
+
             serializer = InvoiceUploadStatusSerializer(upload_invoice_obj,
-                                                       data=request.data,
+                                                       data=request_data,
                                                        partial=True)
 
             if serializer.is_valid(raise_exception=True):
@@ -49,5 +60,8 @@ class FileView(APIView):
                                     status=HTTP_200_OK)
         except (UploadInvoice.DoesNotExist, UploadInvoice.MultipleObjectsReturned):
             raise BadRequestException("File upload id does not exists. Please enter a valid Id")
+        except BadRequestException as br:
+            raise br
         except Exception as ex:
+            logger.error(traceback.format_exc())
             raise ServerException()
