@@ -1,58 +1,53 @@
 from django.http import JsonResponse
+from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
-from rest_framework.status import (HTTP_200_OK, HTTP_201_CREATED,
-                                   HTTP_500_INTERNAL_SERVER_ERROR,
-                                   HTTP_400_BAD_REQUEST)
+from rest_framework.status import (HTTP_200_OK, HTTP_201_CREATED)
 from rest_framework.views import APIView
 
 from apps.api.invoicemanagement.models import (UploadInvoice)
 from apps.api.invoicemanagement.serializers import (InvoiceUploadSerializers,
                                                     InvoiceUploadStatusSerializer)
+from apps.api.utils.exception_handler import (BadRequestException,
+                                              ValidationException,
+                                              ServerException)
 
 
 class FileView(APIView):
     def get(self, request, upload_id):
         try:
-
             upload_invoice_obj = UploadInvoice.objects.get(id=upload_id)
-        except UploadInvoice.DoesNotExist as ex:
-            return JsonResponse({"data": {"message": "File upload id does not exists"}},
-                                status=HTTP_400_BAD_REQUEST)
-        except UploadInvoice.MultipleObjectsReturned as ex:
-            return JsonResponse({"data": {"message": "An error occurred"}},
-                                status=HTTP_500_INTERNAL_SERVER_ERROR)
-        else:
             serializer = InvoiceUploadStatusSerializer(upload_invoice_obj)
-
-        return Response(serializer.data, status=HTTP_200_OK)
+            Response(serializer.data, status=HTTP_200_OK)
+        except (UploadInvoice.DoesNotExist, UploadInvoice.MultipleObjectsReturned):
+            raise BadRequestException("File upload id does not exists. Please enter a valid Id")
+        except Exception as ex:
+            raise ServerException()
 
     def post(self, request):
-        serializer = InvoiceUploadSerializers(data=request.data)
-
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=HTTP_201_CREATED)
-
-        return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
+        try:
+            serializer = InvoiceUploadSerializers(data=request.data)
+            if serializer.is_valid(raise_exception=True):
+                serializer.save()
+                return Response(serializer.data, status=HTTP_201_CREATED)
+        except ValidationError:
+            return ValidationException(serializer.errors)
+        except Exception as ex:
+            return ServerException()
 
     def patch(self, request, upload_id):
         try:
 
             upload_invoice_obj = UploadInvoice.objects.get(id=upload_id)
-        except UploadInvoice.DoesNotExist as ex:
-            return JsonResponse({"data": {"message": "File upload id does not exists"}},
-                                status=HTTP_400_BAD_REQUEST)
-        except UploadInvoice.MultipleObjectsReturned as ex:
-            return JsonResponse({"data": {"message": "An error occurred"}},
-                                status=HTTP_500_INTERNAL_SERVER_ERROR)
 
-        serializer = InvoiceUploadStatusSerializer(upload_invoice_obj,
-                                                   data=request.data,
-                                                   partial=True)
+            serializer = InvoiceUploadStatusSerializer(upload_invoice_obj,
+                                                       data=request.data,
+                                                       partial=True)
 
-        if serializer.is_valid():
-            serializer.save()
-            return JsonResponse({"message": "Updated status successfully"},
-                                status=HTTP_200_OK)
-
-        return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
+            if serializer.is_valid(raise_exception=True):
+                serializer.save()
+                return JsonResponse({"message": "Updated status successfully"},
+                                    status=HTTP_200_OK)
+        except (UploadInvoice.DoesNotExist, UploadInvoice.MultipleObjectsReturned):
+            raise BadRequestException("File upload id does not exists. Please enter a valid Id")
+        except Exception as ex:
+            raise ServerException()
