@@ -81,7 +81,7 @@ Status: 2 - Done
 ```json
 {
   "status": 2,
-  "invoice_details_id": 1
+  "invoice_detail_id": 1
 }
 ```
 
