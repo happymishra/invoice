@@ -77,11 +77,28 @@ Status: 0 - New
 Status: 1 - InProgress  
 Status: 2 - Done  
 
+**Condition 1**: *Update status to Done*
 ```json
 {
-  "status": 2
+  "status": 2,
+  "invoice_details_id": 1
 }
 ```
+
+**Condition 1**: *Update status to InProgress*
+```json
+{
+  "status": 1
+}
+```
+
+**Condition 1**: *Update status to New*
+```json
+{
+  "status": 0
+}
+```
+
 **Response**:
 ```json
 {
