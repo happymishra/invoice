@@ -1,3 +1,8 @@
+"""
+API view class which has all the API end points to add and update invoice
+information
+"""
+
 import traceback
 
 from rest_framework.exceptions import ValidationError
@@ -15,6 +20,9 @@ from . import logger
 
 
 class InvoiceDetailView(APIView):
+    """
+    Contains API methods for the invoice details views
+    """
     def get(self, request, invoice_id):
         try:
             query_set = InvoiceDetail.invoice_detail_objects.get(id=invoice_id)

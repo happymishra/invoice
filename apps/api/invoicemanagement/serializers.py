@@ -1,3 +1,7 @@
+"""
+Provides the serializers for the invoicemanagement app.
+"""
+
 from rest_framework import serializers
 from rest_framework.parsers import FileUploadParser
 
@@ -9,6 +13,10 @@ from apps.api.invoicemanagement.models import (UploadInvoice,
 
 
 class InvoiceUploadSerializers(serializers.ModelSerializer):
+    """
+    Serializer class for API methods to upload invoice document and sending
+    response
+    """
     parser_classes = (FileUploadParser,)
     id = serializers.IntegerField(required=False)
 
@@ -18,6 +26,9 @@ class InvoiceUploadSerializers(serializers.ModelSerializer):
 
 
 class InvoiceUploadStatusSerializer(serializers.ModelSerializer):
+    """
+    Serializer class for API methods to update the upload status of an API
+    """
     id = serializers.IntegerField(required=False)
     invoice_detail_id = serializers.IntegerField(required=False)
 
@@ -37,6 +48,10 @@ class InvoiceUploadStatusSerializer(serializers.ModelSerializer):
 
 
 class AddressSerializer(serializers.ModelSerializer):
+    """
+    Serializer class for API method to add and update invoice details APIs.
+    This serializer handles the nested Address part of the invoice details
+    """
     class Meta:
         model = Address
         fields = ['street', 'pin_code']
@@ -50,6 +65,11 @@ class AddressSerializer(serializers.ModelSerializer):
 
 
 class BuyerSellerSerializer(serializers.ModelSerializer):
+    """
+    Serializer class for API method to add and update invoice details APIs.
+    This serializer handles the nested buyer and seller information part of the
+    invoice details
+    """
     address = AddressSerializer()
 
     class Meta:
@@ -76,6 +96,11 @@ class BuyerSellerSerializer(serializers.ModelSerializer):
 
 
 class InvoiceItemSerializer(serializers.ModelSerializer):
+    """
+    Serializer class for API method to add and update invoice details APIs.
+    This serializer handles the nested items information part of the
+    invoice details
+    """
     id = serializers.IntegerField(required=False)
 
     class Meta:
@@ -112,6 +137,10 @@ class InvoiceItemSerializer(serializers.ModelSerializer):
 
 
 class InvoiceDetailSerializer(serializers.ModelSerializer):
+    """
+    Serializer class for API method to add and update invoice details APIs.
+    This serializer handles the invoice details information
+    """
     id = serializers.IntegerField(required=False)
     buyer = BuyerSellerSerializer()
     seller = BuyerSellerSerializer()

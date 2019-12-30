@@ -1,3 +1,7 @@
+"""
+Contains all the models of the invoicemanagement app
+"""
+
 from datetime import datetime
 
 from django.db import models
